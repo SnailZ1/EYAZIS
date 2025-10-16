@@ -5,6 +5,7 @@ import glob
 import PyPDF2
 import docx
 import re
+from langdetect import detect, LangDetectException
 
 class DocumentCollector:
     """
@@ -73,6 +74,19 @@ class DocumentCollector:
         title = re.sub(r'[_-]', ' ', name_without_ext)
         # Делаем первую букву заглавной
         return title.title()
+
+    def _is_english(self, text):
+        """Проверяет, написан ли текст на английском языке"""
+        try:
+            if not text.strip():
+                return False
+            lang = detect(text)
+            return lang == 'en'
+        except LangDetectException:
+            return False
+        except Exception as e:
+            print(f"Ошибка определения языка: {e}")
+            return False
     
     def _is_text_file(self, file_path):
         """Проверяет, является ли файл текстовым и поддерживаемым"""
@@ -120,6 +134,9 @@ class DocumentCollector:
                 content = self.supported_extensions[ext](file_path)
                 
                 if content and content.strip():  # Проверяем, что файл не пустой
+
+                    if not self._is_english(content):
+                        break
                     # Создаем объект Document
                     title = self._get_file_title(file_path)
                     file_size = os.path.getsize(file_path)
