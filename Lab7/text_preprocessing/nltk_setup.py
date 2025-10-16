@@ -3,7 +3,7 @@ import nltk
 def download_nltk_resources():
     """Загружает необходимые ресурсы NLTK при первом запуске"""
     resources = [
-        'tokenizers/punkt',
+        'tokenizers/punkt_tab',
         'corpora/stopwords',
         'corpora/wordnet',
         'taggers/averaged_perceptron_tagger'

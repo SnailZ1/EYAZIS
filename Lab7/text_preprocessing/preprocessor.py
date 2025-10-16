@@ -12,7 +12,7 @@ class TextPreprocessor:
     Класс для предобработки текстовых документов на английском языке
     """
     
-    def __init__(self, use_stemming=True, use_lemmatization=False, custom_stopwords=None):
+    def __init__(self, use_stemming=False, use_lemmatization=True, custom_stopwords=None):
         self.use_stemming = use_stemming
         self.use_lemmatization = use_lemmatization
         self.stop_words = set(stopwords.words('english'))
