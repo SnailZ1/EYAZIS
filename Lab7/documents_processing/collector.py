@@ -1,10 +1,10 @@
-from .document import Document
-
 import os
 import glob
-import PyPDF2
-import docx
 import re
+from .document import Document
+from .file_reader import FileReader
+from .metadata_collect import MetadataExtractor
+from datetime import datetime
 from langdetect import detect, LangDetectException
 
 class DocumentCollector:
@@ -15,10 +15,10 @@ class DocumentCollector:
     def __init__(self, supported_extensions=None):
         if supported_extensions is None:
             self.supported_extensions = {
-                '.txt': self._read_txt,
-                '.pdf': self._read_pdf,
-                '.docx': self._read_docx,
-                '.doc': self._read_docx
+                '.txt': FileReader.read_txt,
+                '.pdf': FileReader.read_pdf,
+                '.docx': FileReader.read_docx,
+                '.doc': FileReader.read_docx
             }
         else:
             self.supported_extensions = supported_extensions
@@ -26,55 +26,18 @@ class DocumentCollector:
         self.documents = []
         self.next_id = 1
     
-    def _read_txt(self, file_path):
-        """Чтение текстовых файлов"""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                return file.read()
-        except UnicodeDecodeError:
-            try:
-                with open(file_path, 'r', encoding='cp1251') as file:
-                    return file.read()
-            except:
-                return ""
-        except Exception as e:
-            print(f"Ошибка чтения TXT файла {file_path}: {e}")
-            return ""
-    
-    def _read_pdf(self, file_path):
-        """Чтение PDF файлов"""
-        try:
-            with open(file_path, 'rb') as file:
-                pdf_reader = PyPDF2.PdfReader(file)
-                text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
-                return text.strip()
-        except Exception as e:
-            print(f"Ошибка чтения PDF файла {file_path}: {e}")
-            return ""
-    
-    def _read_docx(self, file_path):
-        """Чтение DOCX файлов"""
-        try:
-            doc = docx.Document(file_path)
-            text = ""
-            for paragraph in doc.paragraphs:
-                text += paragraph.text + "\n"
-            return text.strip()
-        except Exception as e:
-            print(f"Ошибка чтения DOCX файла {file_path}: {e}")
-            return ""
-    
     def _get_file_title(self, file_path):
         """Извлекает заголовок из имени файла"""
         base_name = os.path.basename(file_path)
         name_without_ext = os.path.splitext(base_name)[0]
-        # Заменяем подчеркивания и дефисы на пробелы
         title = re.sub(r'[_-]', ' ', name_without_ext)
-        # Делаем первую букву заглавной
         return title.title()
-
+    
+    def _is_text_file(self, file_path):
+        """Проверяет, является ли файл текстовым и поддерживаемым"""
+        _, ext = os.path.splitext(file_path.lower())
+        return ext in self.supported_extensions
+    
     def _is_english(self, text):
         """Проверяет, написан ли текст на английском языке"""
         try:
@@ -88,21 +51,9 @@ class DocumentCollector:
             print(f"Ошибка определения языка: {e}")
             return False
     
-    def _is_text_file(self, file_path):
-        """Проверяет, является ли файл текстовым и поддерживаемым"""
-        _, ext = os.path.splitext(file_path.lower())
-        return ext in self.supported_extensions
-    
-    def collect_documents(self, directory_path, recursive=True):
+    def collect_documents(self, directory_path, recursive=True, use_file_metadata=True):
         """
         Собирает все документы из указанной директории
-        
-        Args:
-            directory_path (str): Путь к директории для сканирования
-            recursive (bool): Рекурсивный поиск во вложенных папках
-        
-        Returns:
-            list: Список объектов Document
         """
         if not os.path.exists(directory_path):
             print(f"Директория {directory_path} не существует!")
@@ -110,34 +61,28 @@ class DocumentCollector:
         
         print(f"Начинаем сбор документов из: {directory_path}")
         
-        # Определяем метод поиска файлов
-        if recursive:
-            pattern = os.path.join(directory_path, "**", "*")
-        else:
-            pattern = os.path.join(directory_path, "*")
-        
-        # Собираем все файлы
+        pattern = os.path.join(directory_path, "**", "*") if recursive else os.path.join(directory_path, "*")
         all_files = glob.glob(pattern, recursive=recursive)
-        
-        # Фильтруем только поддерживаемые текстовые файлы
         text_files = [f for f in all_files if os.path.isfile(f) and self._is_text_file(f)]
         
         print(f"Найдено {len(text_files)} поддерживаемых файлов")
         
-        # Обрабатываем каждый файл
         for file_path in text_files:
             try:
-                # Определяем расширение файла
                 _, ext = os.path.splitext(file_path.lower())
-                
-                # Читаем содержимое файла
                 content = self.supported_extensions[ext](file_path)
                 
-                if content and content.strip():  # Проверяем, что файл не пустой
+                if content and content.strip():
 
                     if not self._is_english(content):
                         break
-                    # Создаем объект Document
+
+                    if use_file_metadata:
+                        date_created, date_modified = MetadataExtractor.get_file_dates(file_path)
+                    else:
+                        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        date_created, date_modified = current_time, current_time
+                    
                     title = self._get_file_title(file_path)
                     file_size = os.path.getsize(file_path)
                     
@@ -147,13 +92,14 @@ class DocumentCollector:
                         content=content,
                         file_path=file_path,
                         file_type=ext.upper(),
-                        file_size=file_size
+                        file_size=file_size,
+                        date_created=date_created,
+                        date_modified=date_modified
                     )
                     
                     self.documents.append(document)
                     self.next_id += 1
-                    
-                    print(f"Обработан: {title} ({ext})")
+                    print(f"Обработан: {title} ({ext}), создан: {date_created}")
                 else:
                     print(f"Пропущен пустой файл: {file_path}")
                     
@@ -162,17 +108,26 @@ class DocumentCollector:
         
         print(f"Сбор документов завершен. Обработано: {len(self.documents)} документов")
         return self.documents
+
     
     def get_documents_stats(self):
         """Возвращает статистику по собранным документам"""
         if not self.documents:
             return "Нет документов"
         
+        from datetime import datetime
+        dates = [datetime.strptime(doc.date_created, "%Y-%m-%d %H:%M:%S") for doc in self.documents]
+        oldest = min(dates).strftime("%Y-%m-%d")
+        newest = max(dates).strftime("%Y-%m-%d")
+        
         stats = {
             'total_documents': len(self.documents),
             'total_chars': sum(len(doc.content) for doc in self.documents),
             'file_types': {},
-            'avg_chars_per_doc': sum(len(doc.content) for doc in self.documents) / len(self.documents)
+            'avg_chars_per_doc': sum(len(doc.content) for doc in self.documents) / len(self.documents),
+            'date_range': f"{oldest} - {newest}",
+            'oldest_document': oldest,
+            'newest_document': newest
         }
         
         for doc in self.documents:
