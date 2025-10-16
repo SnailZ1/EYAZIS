@@ -1,0 +1,1 @@
+Machine learning and artificial intelligence are transforming information retrieval systems. Modern search engines use vector space models and neural networks to improve search accuracy.

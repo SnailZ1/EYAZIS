@@ -1,0 +1,1 @@
+This is a sample text document for testing the information retrieval system. It contains some English text that will be processed by the system.
