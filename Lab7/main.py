@@ -18,7 +18,7 @@ def main():
     
     # 2. Предобработка текстов
     print("\n=== ПРЕДОБРАБОТКА ТЕКСТОВ ===")
-    preprocessor = PreprocessorFactory.create_stemming_preprocessor()
+    preprocessor = PreprocessorFactory.create_lemmatization_preprocessor()
     batch_processor = BatchTextPreprocessor(preprocessor)
     
     # Обрабатываем коллекцию

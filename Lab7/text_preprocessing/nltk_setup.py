@@ -6,7 +6,7 @@ def download_nltk_resources():
         'tokenizers/punkt_tab',
         'corpora/stopwords',
         'corpora/wordnet',
-        'taggers/averaged_perceptron_tagger'
+        'taggers/averaged_perceptron_tagger_eng'
     ]
     
     for resource in resources:
