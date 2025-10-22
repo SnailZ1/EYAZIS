@@ -2,41 +2,46 @@ from documents_processing.collector import DocumentCollector
 from text_preprocessing.preprocessor_factory import PreprocessorFactory
 from text_preprocessing.batching import BatchTextPreprocessor
 from text_preprocessing.utils import PreprocessingUtils
+from indexing.index_builder import IndexBuilder
+
 
 def main():
-    """Основная функция для демонстрации работы системы"""
-    
+    """Полный процесс построения поисковой системы"""
+
+    print("=== СИСТЕМА ИНФОРМАЦИОННОГО ПОИСКА ===")
+    print("Вариант 33: Модуль отбора документов, ЛВС, Векторная модель, Английский")
+
     # 1. Сбор документов
-    print("=== СБОР ДОКУМЕНТОВ ===")
+    print("\n1. СБОР ДОКУМЕНТОВ")
     collector = DocumentCollector()
-    documents = collector.collect_documents("./docs", use_file_metadata=True)
-    
-    # Выводим статистику
-    stats = collector.get_documents_stats()
-    print(stats)
-    print(f"Собрано документов: {stats['total_documents']}")
-    
+    documents = collector.collect_documents("docs")
+
+    if not documents:
+        print("Не найдено документов для обработки!")
+        return
+
     # 2. Предобработка текстов
-    print("\n=== ПРЕДОБРАБОТКА ТЕКСТОВ ===")
+    print("\n2. ПРЕДОБРАБОТКА ТЕКСТОВ")
     preprocessor = PreprocessorFactory.create_lemmatization_preprocessor()
     batch_processor = BatchTextPreprocessor(preprocessor)
-    
-    # Обрабатываем коллекцию
-    processing_stats = batch_processor.preprocess_collection(documents)
+    batch_processor.preprocess_collection(documents)
     batch_processor.print_statistics()
-    
-    # 3. Сохранение результатов
-    print("\n=== СОХРАНЕНИЕ РЕЗУЛЬТАТОВ ===")
-    PreprocessingUtils.save_processed_documents(documents, "processed_documents.json")
-    print("Результаты сохранены в 'processed_documents.json'")
-    
-    # 4. Демонстрация работы
-    print("\n=== ДЕМОНСТРАЦИЯ ===")
-    if documents:
-        first_doc = documents[0]
-        print(f"Документ: {first_doc.title}")
-        print(f"Оригинал: {first_doc.content[:200]}...")
-        print(f"Обработанный: {first_doc.processed_content[:200]}...")
+
+    # 3. Построение индекса (словарь + TF-IDF)
+    print("\n3. ПОСТРОЕНИЕ ИНДЕКСА")
+    index_builder = IndexBuilder()
+    index_builder.build_index(documents)
+
+    # 4. Сохранение индекса
+    print("\n4. СОХРАНЕНИЕ ИНДЕКСА")
+    index_builder.save_index("search_index")
+
+    # 5. Статистика
+    print("\n5. СТАТИСТИКА")
+    index_builder.print_detailed_statistics()
+
+    print("\n=== ПРОЦЕСС ЗАВЕРШЕН ===")
+
 
 if __name__ == "__main__":
     main()
