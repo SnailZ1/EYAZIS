@@ -97,13 +97,11 @@ class ChromaStorage(VectorStorage):
                 print(f"✅ Найдено результатов: {len(results['ids'][0])}")
 
                 for i, doc_id in enumerate(results['ids'][0]):
-                    # Chroma использует косинусное расстояние (1 - cosine_similarity)
-                    # Поэтому преобразуем обратно в сходство
+                
                     distance = results['distances'][0][i]
-                    similarity = 1 - distance  # Преобразуем расстояние в сходство
+                    similarity = abs(distance / 2 - 1)  # Преобразуем расстояние в сходство
 
-                    # Иногда из-за ошибок округления similarity может быть немного отрицательным
-                    similarity = max(0.0, similarity)
+                    if not round(similarity, 1): continue
 
                     formatted_results.append({
                         'doc_id': int(doc_id),

@@ -1,6 +1,6 @@
 # document_selector/base_selector.py
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List, Dict
 from datetime import datetime
 
 
@@ -27,10 +27,13 @@ class BaseDocumentSelector(ABC):
         filtered_docs = []
         query_terms = set(query.lower().split())
 
+        print(f"Термины запроса: {query_terms}")
+
         for doc in documents:
             # Проверяем наличие хотя бы одного термина запроса
             if hasattr(doc, 'processed_content'):
                 doc_terms = set(doc.processed_content.split())
+                print(f" Термины из {doc.title}: {doc_terms}")
                 if query_terms & doc_terms:  # Есть пересечение
                     filtered_docs.append(doc)
             else:

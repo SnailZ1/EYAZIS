@@ -54,9 +54,22 @@
                 <p>Выполняется поиск...</p>
             </div>
 
+            <!-- Секция расширения запроса -->
+            <div id="expansionInfo" style="display: none;">
+                <div class="expansion-section">
+                    <h5>🎯 Семантическое расширение запроса</h5>
+                    <div id="expansionContent"></div>
+                </div>
+            </div>
+
             <div id="results-section" class="results-section hidden">
                 <h2>Результаты поиска</h2>
                 <div id="results-container"></div>
+            </div>
+
+            <div id="selectionStats" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h5>📊 Статистика работы селектора</h5>
+                <div id="statsContent"></div>
             </div>
 
             <div id="error-message" class="error-message hidden"></div>

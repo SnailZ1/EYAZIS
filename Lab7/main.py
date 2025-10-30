@@ -31,7 +31,7 @@ def build_search_index(docs_directory: str = "docs"):
 
     # 3. Построение индекса с векторной БД
     print("\n3. ПОСТРОЕНИЕ ИНДЕКСА")
-    index_builder = IndexBuilder(use_vector_db=True)
+    index_builder = IndexBuilder(use_vector_db=True, use_semantic_search=True)
     index_builder.build_index(documents)
 
     # 4. Сохранение индекса
@@ -53,62 +53,78 @@ def run_web_interface(host='127.0.0.1', port=5000, debug=True):
     search_app = SearchApp()
     search_app.run(host=host, port=port, debug=debug)
 
-
 def test_search_system():
-    """Тестирование поисковой системы"""
-    print("=== ТЕСТИРОВАНИЕ ПОИСКОВОЙ СИСТЕМЫ ===")
+    """Тестирование поисковой системы с гибридным селектором"""
+    print("=== ТЕСТИРОВАНИЕ ПОИСКОВОЙ СИСТЕМЫ С ГИБРИДНЫМ СЕЛЕКТОРОМ ===")
 
     try:
         from text_preprocessing.preprocessor_factory import PreprocessorFactory
         from indexing.index_builder import IndexBuilder
-
-        # Загружаем существующий индекс
-        index_builder = IndexBuilder(use_vector_db=True)
-        index_builder.vocabulary.load_vocabulary("search_index/vocabulary.json")
-        index_builder.vector_storage = None
+        from documents_processing.collector import DocumentCollector
+        from text_preprocessing.batching import BatchTextPreprocessor
         from vector_storage.chroma_storage import ChromaStorage
-        index_builder.vector_storage = ChromaStorage()
 
-        # Инициализируем TF-IDF калькулятор
-        from indexing.tfidf_calculator import TFIDFCalculator
-        index_builder.tfidf_calculator = TFIDFCalculator(index_builder.vocabulary)
+        # Загружаем документы
+        collector = DocumentCollector()
+        documents = collector.collect_documents("docs", recursive=True)
+        
+        if not documents:
+            print("❌ Нет документов для тестирования")
+            return
 
+        # Предобрабатываем
         preprocessor = PreprocessorFactory.create_lemmatization_preprocessor()
+        batch_processor = BatchTextPreprocessor(preprocessor)
+        batch_processor.preprocess_collection(documents)
+
+        # Загружаем существующий индекс С селектором
+        index_builder = IndexBuilder(
+            use_vector_db=True,
+            use_document_selector=True,  # ВКЛЮЧАЕМ селектор!
+            use_semantic_search=False
+        )
+        
+        try:
+            index_builder.vocabulary.load_vocabulary("search_index/vocabulary.json")
+            index_builder.vector_storage = ChromaStorage()
+            from indexing.tfidf_calculator import TFIDFCalculator
+            index_builder.tfidf_calculator = TFIDFCalculator(index_builder.vocabulary)
+            index_builder.all_documents = documents  
+        except:
+            print("⚠️  Индекс не найден, строим с нуля...")
+            index_builder.build_index(documents)
+            index_builder.save_index("search_index")
 
         # Тестовые запросы
         test_queries = [
             "computer science and artificial intelligence",
-            "data analysis and machine learning",
-            "the quick brown fox jumps over the lazy dog"
+            "data analysis and machine learning", 
+            "programming and development"
         ]
 
-        print("\nТестирование предобработки запросов:")
+        print("\n🧪 Тестирование гибридного селектора:")
         for query in test_queries:
-            print(f"\nЗапрос: '{query}'")
+            print(f"\n🔍 Запрос: '{query}'")
 
-            # Анализ запроса
-            analysis = index_builder.analyze_query(query, preprocessor)
-            print(f"Обработанные термины: {analysis['processed_terms']}")
-            print(f"Анализ терминов:")
-            for term_info in analysis['term_analysis']:
-                if term_info['in_vocabulary']:
-                    print(f"  '{term_info['term']}': DF={term_info['document_frequency']}, "
-                          f"IDF={term_info['idf']}, вес={term_info['weight_in_query']}")
-                else:
-                    print(f"  '{term_info['term']}': НЕТ В СЛОВАРЕ")
+            # Поиск с селектором
+            results = index_builder.search(query, preprocessor, top_k=3)
+            
+            # Статистика селектора
+            if index_builder.document_selector:
+                stats = index_builder.document_selector.get_selection_statistics()
+                print(f"📊 Статистика селектора: {stats}")
 
-            # Поиск
-            results = index_builder.search(query, preprocessor, top_k=2)
             if results:
                 for i, result in enumerate(results, 1):
-                    print(f"  {i}. {result['metadata']['title']} (сходство: {result['similarity_score']:.3f})")
+                    print(f"  {i}. {result['metadata']['title']} " 
+                          f"(сходство: {result['similarity_score']:.3f})")
             else:
-                print("  Ничего не найдено")
+                print("  ❌ Ничего не найдено")
 
     except Exception as e:
-        print(f"Ошибка тестирования: {e}")
+        print(f"❌ Ошибка тестирования: {e}")
 
-
+    
 def test_document_selector():
     """Тестирование модуля отбора документов"""
     print("=== ТЕСТИРОВАНИЕ МОДУЛЯ ОТБОРА ДОКУМЕНТОВ ===")
@@ -156,12 +172,15 @@ def test_document_selector():
         print(f"Ошибка тестирования селектора: {e}")
 
 def main():
-    """Главная функция приложения"""
     parser = argparse.ArgumentParser(description='Информационно-поисковая система')
     parser.add_argument('--build-index', action='store_true',
                         help='Построить поисковый индекс')
     parser.add_argument('--web', action='store_true',
                         help='Запустить веб-интерфейс')
+    parser.add_argument('--use-word2vec', action='store_true',
+                        help='Использовать Word2Vec для семантического поиска')
+    parser.add_argument('--word2vec-model', default='models/word2vec.bin',
+                        help='Путь к модели Word2Vec')
     parser.add_argument('--test', action='store_true',
                         help='Протестировать поисковую систему')
     parser.add_argument('--test-selector', action='store_true',
@@ -202,6 +221,14 @@ def main():
     # Запуск веб-интерфейса
     if args.web:
         run_web_interface(host=args.host, port=args.port)
+
+    if args.use_word2vec:
+        print("🔍 Активация семантического поиска Word2Vec...")
+        # Проверяем наличие модели
+        if not os.path.exists(args.word2vec_model):
+            print("❌ Модель Word2Vec не найдена. Создаем тестовую...")
+            from scripts.download_model import download_word2vec_model
+            args.word2vec_model = download_word2vec_model()
 
 
 if __name__ == '__main__':

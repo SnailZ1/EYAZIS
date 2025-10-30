@@ -5,7 +5,7 @@ from .nltk_setup import download_nltk_resources
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from nltk import pos_tag as nltk_pos_tag  # ИМЕНЯЕМ ИМПОРТ чтобы избежать конфликта
+from nltk import pos_tag as nltk_pos_tag  
 from typing import List, Dict
 
 

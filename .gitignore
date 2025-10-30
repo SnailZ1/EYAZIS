@@ -11,3 +11,6 @@ __pycache__/
 *.json
 *.pkl
 chroma_db/
+.vscode/
+glove-wiki-gigaword-200.bin
+
