@@ -8,3 +8,6 @@ env.bak/
 venv.bak/
 __pycache__/
 .idea/
+*.json
+*.pkl
+chroma_db/
