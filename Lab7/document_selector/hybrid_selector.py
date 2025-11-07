@@ -39,14 +39,14 @@ class HybridDocumentSelector:
         print(bool(self.use_semantic_search), self.semantic_enhancer)
 
         if self.use_semantic_search and self.semantic_enhancer:
-            print("🎯 Этап 0: Семантическое расширение запроса")
+            print("Этап 0: Семантическое расширение запроса")
             expansion_result = self.semantic_enhancer.expand_query_with_similar_words(query)
             self.last_expansion_result = expansion_result
             
             # Создаем расширенный запрос для поиска
             expanded_query = " ".join(expansion_result['all_terms'])
-            print(f"   📖 Оригинальный запрос: '{query}'")
-            print(f"   🔍 Расширенный запрос: '{expanded_query}'")
+            print(f"Оригинальный запрос: '{query}'")
+            print(f"Расширенный запрос: '{expanded_query}'")
             
             # Используем расширенный запрос для следующих этапов
             query = expanded_query

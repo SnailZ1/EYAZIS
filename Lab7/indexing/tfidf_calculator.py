@@ -67,11 +67,11 @@ class TFIDFCalculator:
         """
         Полная предобработка запроса
         """
-        print(f"🔍 Предобработка запроса: '{query_text}'")
+        print(f"Предобработка запроса: '{query_text}'")
 
         # 1. Предобработка текста запроса
         processed_terms = preprocessor.preprocess_text(query_text, return_string=False)
-        print(f"📝 Термины после предобработки: {processed_terms}")
+        print(f"Термины после предобработки: {processed_terms}")
 
         # 2. Векторизация запроса
         query_vector = self.query_to_tfidf_vector(processed_terms)
@@ -83,7 +83,7 @@ class TFIDFCalculator:
                 term = self.vocabulary.get_term_by_index(i)
                 non_zero_terms.append((term, weight))
 
-        print(f"🎯 Ненулевые термины в векторе запроса: {non_zero_terms}")
+        print(f"Ненулевые термины в векторе запроса: {non_zero_terms}")
 
         return processed_terms, query_vector
 
@@ -100,7 +100,7 @@ class TFIDFCalculator:
         term_freq = Counter(query_terms)
         total_terms = len(query_terms)
 
-        print(f"📊 Векторизация {len(query_terms)} терминов запроса:")
+        print(f"Векторизация {len(query_terms)} терминов запроса:")
 
         for term, count in term_freq.items():
             term_idx = self.vocabulary.get_term_index(term)
@@ -114,17 +114,17 @@ class TFIDFCalculator:
 
                 print(f"   '{term}': TF={tf:.3f}, IDF={idf:.3f}, вес={weight:.4f}")
             else:
-                print(f"   ⚠️  '{term}': НЕТ В СЛОВАРЕ")
+                print(f"    '{term}': НЕТ В СЛОВАРЕ")
 
         # Нормализуем вектор запроса
         norm = self._calculate_euclidean_norm(vector)
-        print(f"📐 Норма вектора до нормализации: {norm:.4f}")
+        print(f"Норма вектора до нормализации: {norm:.4f}")
 
         if norm > 0:
             vector = [v / norm for v in vector]
-            print(f"✅ Вектор запроса нормализован")
+            print(f"Вектор запроса нормализован")
         else:
-            print(f"❌ Вектор запроса нулевой - нет совпадающих терминов")
+            print(f"Вектор запроса нулевой - нет совпадающих терминов")
 
         return vector
 
@@ -151,7 +151,7 @@ class TFIDFCalculator:
         Детальная отладка обработки запроса
         """
         print("\n" + "=" * 50)
-        print("🔍 ДЕТАЛЬНАЯ ОТЛАДКА ОБРАБОТКИ ЗАПРОСА")
+        print("ДЕТАЛЬНАЯ ОТЛАДКА ОБРАБОТКИ ЗАПРОСА")
         print("=" * 50)
 
         # Исходный запрос
@@ -168,9 +168,9 @@ class TFIDFCalculator:
             if term_idx != -1:
                 df = self.vocabulary.get_document_frequency(term)
                 idf = self._calculate_idf(term)
-                print(f"  '{term}': в словаре ✅ (DF={df}, IDF={idf:.3f})")
+                print(f"  '{term}': в словаре (DF={df}, IDF={idf:.3f})")
             else:
-                print(f"  '{term}': нет в словаре ❌")
+                print(f"  '{term}': нет в словаре")
 
         # Векторизация
         query_vector = self.query_to_tfidf_vector(processed_terms)

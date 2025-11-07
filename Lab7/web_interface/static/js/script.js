@@ -109,8 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
             html += '</div>';
             
             html += `<div class="mt-2"><small class="text-muted">`;
-            html += `💡 Зеленым цветом подсвечены оригинальные термины запроса<br>`;
-            html += `💡 Синим цветом подсвечены семантически похожие термины, найденные в документах`;
+            html += `Примечание: зеленым цветом подсвечены оригинальные термины запроса,<br>`;
+            html += `а голубым цветом подсвечены семантически похожие термины, найденные в документах`;
             html += `</small></div>`;
         }
         
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!data.results || data.results.length === 0) {
             resultsContainer.innerHTML = `
                 <div class="no-results">
-                    <p>😕 По вашему запросу ничего не найдено.</p>
+                    <p>К сожалению по вашему запросу ничего не найдено.</p>
                     <p>Попробуйте изменить запрос или использовать другие ключевые слова.</p>
                 </div>
             `;
@@ -148,29 +148,31 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="results-list">
         `;
-        
+
         data.results.forEach(result => {
             // Используем сниппет с семантической подсветкой если есть
             const snippet = result.semantic_info && result.semantic_info.highlighted_snippet 
                 ? result.semantic_info.highlighted_snippet 
                 : (result.snippet || 'Нет текста для отображения');
             
+            
+
             html += `
                 <div class="result-item">
                     <div class="result-header">
                         <h3 class="result-title">
-                            📄 ${escapeHtml(result.title || 'Без названия')}
-                            <span class="file-type">(${escapeHtml(result.file_type || 'Неизвестно')})</span>
+                            Название документа: ${escapeHtml(result.metadata.title || 'Без названия')}
+                            <span class="file-type">(${escapeHtml(result.metadata.file_type || 'Неизвестно')})</span>
                         </h3>
                         <div class="relevance-badge">
-                            Релевантность: ${result.relevance}%
+                            Релевантность: ${(result.enhancement_info.combined_score * 100).toFixed(1)}%
                         </div>
                     </div>
 
                     <div class="result-meta">
                         <span class="doc-id">ID: ${result.doc_id}</span>
-                        <span class="date">Создан: ${escapeHtml(result.date_created || 'Неизвестно')}</span>
-                        <span class="file-path">Путь: ${escapeHtml(result.file_path || 'Неизвестно')}</span>
+                        <span class="date">Создан: ${escapeHtml(result.metadata.date_created || 'Неизвестно')}</span>
+                        <span class="file-path">Путь: ${escapeHtml(result.metadata.file_path || 'Неизвестно')}</span>
                     </div>
 
                     <div class="result-snippet">
@@ -219,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 : 0;
             statsHTML += `
                 <div class="stat-item">
-                    <strong>📋 Предварительный отбор</strong><br>
+                    <strong>Предварительный отбор</strong><br>
                     <small>${stats.pre_selection.initial_documents} → ${stats.pre_selection.after_filtering} документов</small><br>
                     <small>Эффективность: ${efficiency}%</small>
                 </div>
@@ -229,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (stats.ranking_enhancement && !stats.ranking_enhancement.skipped) {
             statsHTML += `
                 <div class="stat-item">
-                    <strong>🎯 Улучшение ранжирования</strong><br>
+                    <strong>Улучшение ранжирования</strong><br>
                     <small>${stats.ranking_enhancement.enhanced_results} документов</small><br>
                     <small>Улучшение: ${(stats.ranking_enhancement.average_enhancement * 100).toFixed(1)}%</small>
                 </div>
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (stats.semantic_enhancement && !stats.semantic_enhancement.skipped) {
             statsHTML += `
                 <div class="stat-item">
-                    <strong>🧠 Семантический поиск</strong><br>
+                    <strong>Семантический поиск</strong><br>
                     <small>Расширение: ${stats.semantic_enhancement.query_expansion_ratio.toFixed(1)}x</small><br>
                     <small>Скор: ${(stats.semantic_enhancement.avg_semantic_score * 100).toFixed(1)}%</small>
                 </div>

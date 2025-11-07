@@ -28,9 +28,9 @@ class SemanticEnhancer(BaseDocumentSelector):
             print(f"Загрузка Word2Vec модели из {model_path}...")
             self.word_vectors = KeyedVectors.load_word2vec_format(model_path, binary=True)
             self.vocabulary = set(self.word_vectors.key_to_index.keys())
-            print(f"✅ Word2Vec модель загружена. Размер словаря: {len(self.vocabulary)}")
+            print(f"Word2Vec модель загружена. Размер словаря: {len(self.vocabulary)}")
         except Exception as e:
-            print(f"❌ Ошибка загрузки Word2Vec модели: {e}")
+            print(f"Ошибка загрузки Word2Vec модели: {e}")
 
     def expand_query_with_similar_words(self, query: str, top_n: int = 3) -> Dict:
         """
@@ -50,7 +50,7 @@ class SemanticEnhancer(BaseDocumentSelector):
         expanded_terms = original_terms.copy()
         similar_terms = {}
         
-        print(f"🔍 Семантическое расширение запроса: '{query}'")
+        print(f"Семантическое расширение запроса: '{query}'")
 
         for term in original_terms:
             if term in self.vocabulary:
@@ -70,14 +70,14 @@ class SemanticEnhancer(BaseDocumentSelector):
                             if similar_word not in expanded_terms:
                                 expanded_terms.append(similar_word)
                                 
-                        print(f"   📖 '{term}': {[f'{word}({sim:.2f})' for word, sim in filtered_similar]}")
+                        print(f"'{term}': {[f'{word}({sim:.2f})' for word, sim in filtered_similar]}")
                     else:
-                        print(f"   ⚠️  Для '{term}' не найдено достаточно похожих слов")
+                        print(f"Для '{term}' не найдено достаточно похожих слов")
                         
                 except KeyError:
-                    print(f"   ❌ Слово '{term}' не найдено в модели Word2Vec")
+                    print(f"Слово '{term}' не найдено в модели Word2Vec")
             else:
-                print(f"   ⚠️  Слово '{term}' нет в словаре Word2Vec")
+                print(f"Слово '{term}' нет в словаре Word2Vec")
 
         # Все термины для поиска (оригинальные + расширенные)
         all_search_terms = list(set(original_terms + expanded_terms))
@@ -187,7 +187,7 @@ class SemanticEnhancer(BaseDocumentSelector):
         Улучшает результаты поиска с учетом семантической схожести
         и добавляет информацию для подсветки
         """
-        print("🎯 Применение семантического поиска с расширением запроса...")
+        print("Применение семантического поиска с расширением запроса...")
 
         # Расширяем запрос
         expansion_result = self.expand_query_with_similar_words(query)

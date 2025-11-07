@@ -63,14 +63,14 @@ class ChromaStorage(VectorStorage):
                 metadatas=metadatas,
                 documents=documents_text
             )
-            print(f"✅ Сохранено документов в векторную БД: {len(ids)}")
+            print(f"Сохранено документов в векторную БД: {len(ids)}")
         else:
-            print("❌ Нет документов для сохранения")
+            print("Нет документов для сохранения")
 
     def search_similar(self, query_vector: List[float], top_k: int = 10) -> List[Dict]:
         """Поиск похожих документов по вектору запроса"""
         if not query_vector or all(x == 0 for x in query_vector):
-            print("❌ Запросный вектор нулевой - нет совпадающих терминов")
+            print("Запросный вектор нулевой - нет совпадающих терминов")
             return []
 
         # Нормализуем query vector для косинусного сходства
@@ -79,11 +79,11 @@ class ChromaStorage(VectorStorage):
         if query_norm > 0:
             query_np = query_np / query_norm
         else:
-            print("❌ Норма query vector равна 0")
+            print("Норма query vector равна 0")
             return []
 
-        print(f"🔍 Поиск по вектору размерности {len(query_vector)}")
-        print(f"📐 Нормализованный query vector: {query_norm:.4f}")
+        print(f"Поиск по вектору размерности {len(query_vector)}")
+        print(f"Нормализованный query vector: {query_norm:.4f}")
 
         try:
             results = self.collection.query(
@@ -94,7 +94,7 @@ class ChromaStorage(VectorStorage):
 
             formatted_results = []
             if results['ids'] and results['ids'][0]:
-                print(f"✅ Найдено результатов: {len(results['ids'][0])}")
+                print(f"Найдено результатов: {len(results['ids'][0])}")
 
                 for i, doc_id in enumerate(results['ids'][0]):
                 
@@ -111,14 +111,14 @@ class ChromaStorage(VectorStorage):
                         'snippet': results['documents'][0][i][:300] if results['documents'][0][i] else ""
                     })
 
-                    print(f"   📄 {results['metadatas'][0][i]['title']}: similarity={similarity:.4f}")
+                    print(f"{results['metadatas'][0][i]['title']}: similarity={similarity:.4f}")
             else:
-                print("❌ Chroma не вернула результатов")
+                print("Chroma не вернула результатов")
 
             return formatted_results
 
         except Exception as e:
-            print(f"❌ Ошибка поиска в Chroma: {e}")
+            print(f"Ошибка поиска в Chroma: {e}")
             return []
 
     def get_document_count(self) -> int:
