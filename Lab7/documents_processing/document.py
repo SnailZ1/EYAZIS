@@ -27,7 +27,7 @@ class Document:
         """Возвращает фрагмент текста документа"""
         if len(self.content) <= max_length:
             return self.content
-        return self.content[:max_length] + "..."
+        return self.content[:]
     
     def get_metadata(self):
         """Возвращает метаданные документа"""

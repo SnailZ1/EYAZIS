@@ -17,10 +17,7 @@ class SemanticEnhancer(BaseDocumentSelector):
         self.word_vectors = None
         self.vocabulary = set()
         
-        if word2vec_model_path:
-            self.load_word2vec_model(word2vec_model_path)
-        else:
-            self._create_demo_model()
+        self.load_word2vec_model(word2vec_model_path)
 
     def load_word2vec_model(self, model_path: str):
         """Загрузка предобученной модели Word2Vec"""
@@ -32,11 +29,14 @@ class SemanticEnhancer(BaseDocumentSelector):
         except Exception as e:
             print(f"Ошибка загрузки Word2Vec модели: {e}")
 
-    def expand_query_with_similar_words(self, query: str, top_n: int = 3) -> Dict:
+    def expand_query_with_similar_words(self, query: str, top_n: int = 5) -> Dict:
         """
         Расширяет запрос семантически похожими словами
         Возвращает оригинальные термины, расширенные термины и словарь похожих слов
         """
+
+        
+
         if not self.word_vectors:
             return {
                 'original_terms': query.split(),
@@ -46,7 +46,7 @@ class SemanticEnhancer(BaseDocumentSelector):
                 'expansion_ratio': 1.0
             }
 
-        original_terms = [term.lower().strip() for term in query.split() if term.strip()]
+        original_terms = [term.lower().strip() for term in filter(lambda term: len(term) > 2, query.split()) if term.strip()]
         expanded_terms = original_terms.copy()
         similar_terms = {}
         
@@ -181,6 +181,48 @@ class SemanticEnhancer(BaseDocumentSelector):
             
         return float(min(semantic_score, 1.0))  # Гарантируем float
 
+    def _generate_snippet(self, text: str, query_terms: str):
+
+        if not text:
+            return ""
+
+        text_lower = text.lower()
+
+        print(f'Query terms: {query_terms}\n')
+        print(f'Content: {text}\n')
+
+
+        positions = []
+        for term in query_terms:
+
+            text_lower = text.lower()
+
+            while (pos := text_lower.find(term)) != -1:
+                positions.append(pos)
+
+                print(f'pos: {pos} ({term})')
+
+                text_lower = text_lower[pos + len(term):]
+
+                print(f'\n{text_lower}\n')
+
+
+        start = max(min(positions) - 30, 0)
+        end = max(positions) + 30
+
+        while end - start > 300: end //= 1.5
+
+        print(f'Start: {start}\n End: {end}')
+        
+        snippet = text[start:int(end)]
+
+        print(f'\n{snippet}\n')
+
+        if start > 0: snippet = '...' + snippet
+        elif end < len(text): snippet += '...'
+            
+        return snippet
+
     def enhance_search_with_semantics(self, query: str, search_results: List[Dict], 
                                     documents: List) -> List[Dict]:
         """
@@ -210,7 +252,7 @@ class SemanticEnhancer(BaseDocumentSelector):
                 combined_score = self._combine_scores(original_score, semantic_score)
                 
                 # Подсвечиваем термины в сниппете
-                original_snippet = result.get('snippet', '')
+                original_snippet = self._generate_snippet(result['snippet'], expansion_result['all_terms'])
                 highlighted_snippet = self.highlight_semantic_terms(original_snippet, expansion_result)
                 
                 # Обновляем результат
