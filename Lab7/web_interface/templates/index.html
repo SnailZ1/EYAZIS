@@ -9,16 +9,16 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔍 Информационно-поисковая система</h1>
+            <h1>Информационно-поисковая система</h1>
         </header>
 
         <main>
             <div class="search-section">
                 <div class="status-indicator {% if system_loaded %}status-ready{% else %}status-error{% endif %}">
                     {% if system_loaded %}
-                        ✅ Система готова к работе (документов: {{ total_documents }})
+                        Система готова к работе (документов: {{ total_documents }})
                     {% else %}
-                        ❌ Система не загружена
+                        Система не загружена
                     {% endif %}
                 </div>
 
@@ -31,7 +31,7 @@
                                required
                                {% if not system_loaded %}disabled{% endif %}>
                         <button type="submit" {% if not system_loaded %}disabled{% endif %}>
-                            🔍 Поиск
+                            Поиск
                         </button>
                     </div>
 
@@ -54,9 +54,22 @@
                 <p>Выполняется поиск...</p>
             </div>
 
+            <!-- Секция расширения запроса -->
+            <div id="expansionInfo" style="display: none;">
+                <div class="expansion-section">
+                    <h5>Семантическое расширение запроса</h5>
+                    <div id="expansionContent"></div>
+                </div>
+            </div>
+
             <div id="results-section" class="results-section hidden">
                 <h2>Результаты поиска</h2>
                 <div id="results-container"></div>
+            </div>
+
+            <div id="selectionStats" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h5>Статистика работы селектора</h5>
+                <div id="statsContent"></div>
             </div>
 
             <div id="error-message" class="error-message hidden"></div>

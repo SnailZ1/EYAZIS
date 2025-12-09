@@ -1,0 +1,6 @@
+nltk
+numpy
+scikit-learn
+langdetect
+python-docx
+matplotlib

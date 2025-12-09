@@ -1,4 +1,3 @@
-# indexing/index_builder.py
 from typing import List, Dict
 import json
 from .vocabulary import Vocabulary
@@ -11,22 +10,39 @@ class IndexBuilder:
     Класс для построения и сохранения поискового индекса
     """
 
-    def __init__(self, use_vector_db: bool = True, use_document_selector: bool = True):
+    def __init__(self, use_vector_db: bool = True, use_document_selector: bool = True,
+                 use_semantic_search: bool = True, word2vec_model_path: str = 'models/glove-wiki-gigaword-200.bin'):
         self.vocabulary = Vocabulary()
         self.tfidf_calculator = None
         self.tfidf_vectors = {}
         self.use_vector_db = use_vector_db
         self.vector_storage = None
         self.document_selector = None
+        self.all_documents = []  # Добавляем хранение документов
 
         if use_vector_db:
             self.vector_storage = ChromaStorage()
 
+        print('Векторное хранилище создано!')
+
         if use_document_selector:
             self.document_selector = HybridDocumentSelector(
                 use_pre_selection=True,
-                use_ranking_enhancement=True
+                use_ranking_enhancement=True,
+                use_semantic_search=use_semantic_search,
+                word2vec_model_path=word2vec_model_path
             )
+
+        print('Гибридный селектор документов создан!')
+
+    def semantic_query_analysis(self, query: str) -> Dict:
+        """
+        Анализ запроса с семантическим расширением
+        """
+        if not self.document_selector:
+            return {'error': 'Document selector not initialized'}
+        
+        return self.document_selector.semantic_query_expansion(query)
 
     def build_index(self, documents: List) -> None:
         """
@@ -36,6 +52,9 @@ class IndexBuilder:
         3. Сохранение в векторную БД (если включено)
         """
         print("=== НАЧАЛО ПОСТРОЕНИЯ ИНДЕКСА ===")
+
+        # Сохраняем документы для использования в селекторе
+        self.all_documents = documents
 
         # 1. Построение словаря
         self.vocabulary.build_from_documents(documents)
@@ -81,7 +100,7 @@ class IndexBuilder:
 
     def search(self, query_text: str, preprocessor, top_k: int = 10) -> List[Dict]:
         """
-        Поиск документов по запросу с полной предобработкой
+        Умный поиск с использованием гибридного селектора
         """
         if not self.vector_storage:
             raise ValueError("Векторная БД не инициализирована")
@@ -89,18 +108,68 @@ class IndexBuilder:
         if not self.tfidf_calculator:
             raise ValueError("TF-IDF калькулятор не инициализирован")
 
-        # Полная предобработка запроса
+        # Если есть документы и включен селектор - используем гибридный поиск
+        if self.all_documents and self.document_selector:
+            print("Используем гибридный селектор для поиска")
+            return self.search_with_selection(query_text, preprocessor, self.all_documents, top_k)
+        else:
+            # Стандартный поиск как запасной вариант
+            print("Используем стандартный поиск")
+            return self._standard_search(query_text, preprocessor, top_k)
+
+    def _standard_search(self, query_text: str, preprocessor, top_k: int = 10) -> List[Dict]:
+        """
+        Стандартный поиск без селектора (запасной вариант)
+        """
         processed_terms, query_vector = self.tfidf_calculator.process_query(query_text, preprocessor)
 
-        # Логирование для отладки
         print(f"Обработанные термины запроса: {processed_terms}")
         print(f"Размер вектора запроса: {len(query_vector)}")
-        print(f"Ненулевые компоненты: {sum(1 for x in query_vector if x > 0)}")
 
-        # Ищем в векторной БД
         results = self.vector_storage.search_similar(query_vector, top_k)
 
-        # Добавляем информацию о терминах запроса в результаты
+        for result in results:
+            result['query_terms'] = processed_terms
+
+        return results
+
+    def search_with_selection(self, query_text: str, preprocessor,
+                              all_documents: List, top_k: int = 10) -> List[Dict]:
+        """
+        Поиск с интеллектуальным отбором документов
+        """
+        if not self.document_selector:
+            print("Селектор не инициализирован, используем стандартный поиск")
+            return self._standard_search(query_text, preprocessor, top_k)
+
+        # Функция для точного поиска (будет использоваться селектором)
+        def exact_search(query, documents, k):
+            print(f"Точный поиск по {len(documents)} документам...")
+            
+            # Создаем маппинг для быстрого доступа
+            doc_map = {doc.doc_id: doc for doc in documents}
+            
+            # Выполняем стандартный поиск
+            processed_terms, query_vector = self.tfidf_calculator.process_query(query, preprocessor)
+            vector_results = self.vector_storage.search_similar(query_vector, k)
+            
+            # Фильтруем результаты чтобы оставить только документы из переданного списка
+            filtered_results = []
+            for result in vector_results:
+                doc_id = result['metadata']['doc_id']
+                if doc_id in doc_map:
+                    filtered_results.append(result)
+            
+            print(f"Найдено релевантных документов: {len(filtered_results)}")
+            return filtered_results
+
+        # Используем гибридный селектор
+        results = self.document_selector.process_search(
+            query_text, all_documents, exact_search, top_k
+        )
+
+        # Добавляем информацию о терминах запроса
+        processed_terms, _ = self.tfidf_calculator.process_query(query_text, preprocessor)
         for result in results:
             result['query_terms'] = processed_terms
 
@@ -183,28 +252,6 @@ class IndexBuilder:
         for term, freq in stats['most_frequent_terms']:
             print(f"  {term}: {freq} документов")
 
-    def search_with_selection(self, query_text: str, preprocessor,
-                              all_documents: List, top_k: int = 10) -> List[Dict]:
-        """
-        Поиск с интеллектуальным отбором документов
-        """
-        if not self.document_selector:
-            # Если селектор не используется, выполняем обычный поиск
-            return self.search(query_text, preprocessor, top_k)
-
-        # Функция для точного поиска (будет использоваться селектором)
-        def exact_search(query, documents, k):
-            processed_terms, query_vector = self.tfidf_calculator.process_query(query, preprocessor)
-            # Здесь должна быть логика поиска по подмножеству документов
-            # Для простоты используем существующий метод
-            return self.vector_storage.search_similar(query_vector, k)
-
-        # Используем гибридный селектор
-        results = self.document_selector.process_search(
-            query_text, all_documents, exact_search, top_k
-        )
-
-        return results
 
     def get_selection_stats(self) -> Dict:
         """

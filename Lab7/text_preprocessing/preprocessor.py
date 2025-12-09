@@ -5,7 +5,7 @@ from .nltk_setup import download_nltk_resources
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from nltk import pos_tag as nltk_pos_tag  # ИМЕНЯЕМ ИМПОРТ чтобы избежать конфликта
+from nltk import pos_tag as nltk_pos_tag  
 from typing import List, Dict
 
 
@@ -66,7 +66,7 @@ class TextPreprocessor:
 
             # Отладочная информация для глаголов
             if tag.startswith('V') and token != lemma:
-                print(f"   🔄 Лемматизация глагола: '{token}' -> '{lemma}' (POS: {tag})")
+                print(f"Лемматизация глагола: '{token}' -> '{lemma}' (POS: {tag})")
 
         return lemmatized_tokens
 
@@ -76,39 +76,39 @@ class TextPreprocessor:
             return "" if return_string else []
 
         if debug:
-            print(f"🔍 Исходный текст: '{text}'")
+            print(f"Исходный текст: '{text}'")
 
         # Очистка
         cleaned_text = self.clean_text(text)
         if debug:
-            print(f"📝 После очистки: '{cleaned_text}'")
+            print(f"После очистки: '{cleaned_text}'")
 
         # Токенизация
         tokens = word_tokenize(cleaned_text)
         if debug:
-            print(f"🔤 Токены: {tokens}")
+            print(f"Токены: {tokens}")
 
         # Удаление стоп-слов и коротких токенов
         tokens = [token for token in tokens if token not in self.stop_words and len(token) > 2]
         if debug:
-            print(f"🚫 После удаления стоп-слов: {tokens}")
+            print(f"После удаления стоп-слов: {tokens}")
 
         # Умная лемматизация с определением части речи
         if self.use_lemmatization and self.lemmatizer:
             if debug:
-                print("🧠 Применяем умную лемматизацию...")
+                print("Применяем умную лемматизацию...")
             tokens = self.smart_lemmatize(tokens)
             if debug:
-                print(f"✅ После лемматизации: {tokens}")
+                print(f"После лемматизации: {tokens}")
 
         if return_string:
             result = ' '.join(tokens)
             if debug:
-                print(f"🎯 Финальный результат: '{result}'")
+                print(f"Финальный результат: '{result}'")
             return result
         else:
             if debug:
-                print(f"🎯 Финальные токены: {tokens}")
+                print(f"Финальные токены: {tokens}")
             return tokens
 
     def preprocess_document(self, document) -> Dict:
@@ -138,7 +138,7 @@ class TextPreprocessor:
 
     def debug_term(self, term: str):
         """Отладочная функция для одного термина"""
-        print(f"\n🔍 ОТЛАДКА ТЕРМИНА: '{term}'")
+        print(f"\nОТЛАДКА ТЕРМИНА: '{term}'")
         print("=" * 40)
 
         result = self.preprocess_text(term, return_string=True, debug=True)

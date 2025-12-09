@@ -67,6 +67,38 @@ header p {
     margin-bottom: 20px;
 }
 
+.expansion-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #17a2b8;
+}
+
+.term-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.term-original {
+    background: #28a745;
+    color: white;
+}
+
+.term-expanded {
+    background: #17a2b8;
+    color: white;
+}
+
+.similarity-score {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
 .search-input-group {
     display: flex;
     gap: 10px;
@@ -254,6 +286,159 @@ header p {
     border: 1px solid #f5c6cb;
 }
 
+.semantic-original {
+    background-color: #28a745 !important;
+    color: white !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.semantic-expanded {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+    border: 1px dashed #0f6674;
+}
+
+/* Информация о расширении запроса */
+.expansion-info {
+    background: #e8f4fd;
+    border: 1px solid #b8daff;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.expansion-term {
+    display: inline-block;
+    margin: 2px 5px;
+    padding: 2px 8px;
+    background: #d1ecf1;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.original-term {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.expanded-term {
+    background: #bee5eb;
+    border: 1px dashed #abdde5;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.stat-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-item small {
+    color: #7f8c8d;
+    display: block;
+    line-height: 1.4;
+}
+
+/* Адаптивность для статистики */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Дополнительные стили для семантической подсветки */
+.semantic-original {
+    background-color: #28a745 !important;
+    color: white !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.semantic-expanded {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+    border: 1px dashed #0f6674;
+}
+
+/* Улучшаем внешний вид расширения запроса */
+.expansion-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border-left: 4px solid #17a2b8;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.expansion-section h5 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.expansion-section h5:before {
+    content: "🎯";
+    font-size: 1.2em;
+}
+
+.term-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px 6px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.term-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.term-original {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+}
+
+.term-expanded {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+    color: white;
+    border: none;
+}
+
+.similarity-score {
+    font-size: 0.75em;
+    opacity: 0.9;
+    margin-left: 2px;
+}
+
 footer {
     text-align: center;
     margin-top: 30px;
@@ -276,3 +461,4 @@ footer {
         margin-top: 10px;
     }
 }
+
