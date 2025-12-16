@@ -59,7 +59,7 @@ class TextPreprocessor:
         pos_tags = nltk_pos_tag(tokens)  # Используем переименованный импорт
         lemmatized_tokens = []
 
-        for token, tag in pos_tags:  # ИСПРАВЛЕНО: используем tag вместо pos_tag
+        for token, tag in pos_tags: 
             wordnet_pos = self.get_wordnet_pos(tag)
             lemma = self.lemmatizer.lemmatize(token, pos=wordnet_pos)
             lemmatized_tokens.append(lemma)
@@ -70,7 +70,7 @@ class TextPreprocessor:
 
         return lemmatized_tokens
 
-    def preprocess_text(self, text: str, return_string: bool = True, debug: bool = False):
+    def preprocess_text(self, text: str, return_string: bool = True, debug: bool = True):
         """Пайплайн предобработки с правильной лемматизацией"""
         if not text:
             return "" if return_string else []
@@ -123,13 +123,16 @@ class TextPreprocessor:
             }
 
         original_content = document.content
+
+
+
         processed_content = self.preprocess_text(original_content, return_string=True, debug=False)
         tokens = self.preprocess_text(original_content, return_string=False, debug=False)
 
         document.processed_content = processed_content
 
         return {
-            'original_content': original_content[:200] + '...' if len(original_content) > 200 else original_content,
+            'original_content': original_content,
             'processed_content': processed_content,
             'tokens': tokens,
             'token_count': len(tokens),

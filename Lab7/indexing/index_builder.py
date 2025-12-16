@@ -148,19 +148,26 @@ class IndexBuilder:
             
             # Создаем маппинг для быстрого доступа
             doc_map = {doc.doc_id: doc for doc in documents}
+
+
             
             # Выполняем стандартный поиск
             processed_terms, query_vector = self.tfidf_calculator.process_query(query, preprocessor)
             vector_results = self.vector_storage.search_similar(query_vector, k)
             
-            # Фильтруем результаты чтобы оставить только документы из переданного списка
+            for vec_res in vector_results: vec_res['snippet'] = doc_map[vec_res['doc_id']].processed_content
+
             filtered_results = []
+
             for result in vector_results:
                 doc_id = result['metadata']['doc_id']
                 if doc_id in doc_map:
                     filtered_results.append(result)
             
             print(f"Найдено релевантных документов: {len(filtered_results)}")
+
+            
+
             return filtered_results
 
         # Используем гибридный селектор

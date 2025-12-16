@@ -24,6 +24,7 @@ class BaseDocumentSelector(ABC):
         """
         Базовая предварительная фильтрация
         """
+
         filtered_docs = []
         query_terms = set(query.lower().split())
 

@@ -16,6 +16,8 @@ class DocumentCollector:
         if supported_extensions is None:
             self.supported_extensions = {
                 '.txt': FileReader.read_txt,
+                '.rtf': FileReader.read_txt, 
+                '': FileReader.read_txt,
                 '.pdf': FileReader.read_pdf,
                 '.docx': FileReader.read_docx,
                 '.doc': FileReader.read_docx
@@ -85,7 +87,7 @@ class DocumentCollector:
                     
                     title = self._get_file_title(file_path)
                     file_size = os.path.getsize(file_path)
-                    
+
                     document = Document(
                         doc_id=self.next_id,
                         title=title,
@@ -107,6 +109,7 @@ class DocumentCollector:
                 print(f"Ошибка обработки файла {file_path}: {e}")
         
         print(f"Сбор документов завершен. Обработано: {len(self.documents)} документов")
+
         return self.documents
 
     
