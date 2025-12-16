@@ -36,13 +36,6 @@ THEME = ThemeConfig()
 SUPPORTED_LANGUAGES = ["ru", "de"]
 LANGUAGE_DISPLAY = {"ru": "Русский", "de": "Deutsch"}
 
-
-class ExportFormat:
-    CSV = "csv"
-    EXCEL = "xlsx"
-    PDF = "pdf"
-
-
 DEFAULT_SETTINGS = {
     "theme": "dark",
     "auto_save_history": True,

@@ -13,4 +13,5 @@ __pycache__/
 chroma_db/
 .vscode/
 glove-wiki-gigaword-200.bin
-
+.bin
+.csv
