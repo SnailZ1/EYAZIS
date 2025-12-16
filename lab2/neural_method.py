@@ -16,7 +16,7 @@ import fasttext
 @dataclass
 class NeuralResult:
     language: str
-    probability: float  # Изменено с probability на probability для соответствия MethodResult
+    probability: float
 
 
 class NeuralLanguageDetector:
