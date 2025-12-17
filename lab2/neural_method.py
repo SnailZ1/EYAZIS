@@ -63,7 +63,7 @@ class NeuralLanguageDetector:
             if not filtered_results:
                 # Если ни один из разрешенных языков не попал в top-k,
                 # возвращаем наиболее вероятный из всех (первый элемент в labels/probs)
-                # Это может быть "en", "es" или любой другой язык, который предсказала модель.
+                # Это может быть "ru", "de" или любой другой язык, который предсказала модель.
                 best_label = labels[0]
                 best_prob = probs[0]
                 return NeuralResult(

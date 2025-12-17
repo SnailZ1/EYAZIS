@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from math import log
 from typing import Dict, List
 
-
 SHORT_WORD_LIMIT = 5
 MIN_PROB = 1e-6
 
@@ -61,8 +60,8 @@ class ShortWordsAnalyzer:
         # разница логарифмов
         delta = best_score - second_score
 
-        # переводим в диапазон 0..1 (сигмоида)
-        probability = 1 / (1 + pow(2.71828, -delta))
+        # Сигмоида с поправочным коэффициентом (0.02)
+        probability = 1 / (1 + pow(2.71828, -delta * 0.02)) 
 
         return ShortWordsResult(
             language=best_lang,
