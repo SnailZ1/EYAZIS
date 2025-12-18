@@ -1,8 +1,0 @@
-Flask
-chromadb
-nltk
-numpy
-scikit-learn
-PyPDF2
-python-docx
-langdetect

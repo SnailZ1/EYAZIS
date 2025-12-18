@@ -1,0 +1,32 @@
+Lupsasca, a theoretical physicist at Vanderbilt University in Nashville, is the project scientist for the Black Hole 
+Explorer. His work has illuminated the potential properties of the photon ring the researchers aim to detect. 
+The project’s goal is to put a space-based radio telescope in Earth orbit in 2031.
+By joining forces with other radio telescopes on the ground, it would effectively create a telescope three times the 
+size of Earth. That would allow scientists to take the sharpest images in the history of astronomy, Lupsasca says, 
+and hopefully reveal the photon ring.
+This summer, the capabilities of AI startled Lupsasca. When he prodded the large language model GPT-5 Pro, 
+it reproduced the conclusion of one of his papers, deducing in minutes what he’d spent weeks pondering. In October, 
+he also joined OpenAI for Science, where he’ll continue researching black holes.
+Only in the late ’80s, I think, indirect evidence for the presence of black holes in certain galaxies 
+finally changed most people’s minds, but we still didn’t have direct contact with black holes until the last decade. 
+First with LIGO, the Laser Interferometer for Gravitational-Wave Observatory that discovered the first gravitational 
+waves produced by two black holes merging. So that was a direct probe, through gravity, of real black holes in the sky. 
+Really amazing moment. And then very soon after, in 2019, the Event Horizon Telescope released the first image of the 
+black hole.
+So now we can hear them through gravitational waves and we can even see them. 
+And that’s absolutely a remarkable shift because this purely theoretical subject, which used to be even quite esoteric 
+and people even think black holes weren’t a thing for a long time, now is an experimental science. 
+And it’s an experimental science that is at the observational frontier in astronomy. And I think we’re going to 
+learn so much about all these different phenomena that have really been mysterious for so long. And that’s a really 
+exciting time to be working in this field.
+The Black Hole Explorer is this really exciting, proposed space mission to launch a satellite into Earth orbit 
+that will take the sharpest images in the history of astronomy and allow us to make high-resolution movies of 
+black holes. And one of the main targets of this experiment is this so-called photon ring, which is a very thin, 
+narrow ring of light that is predicted by Einstein’s theory of general relativity to encircle this dark patch in a 
+black hole image that is produced by the event horizon.
+So, our theoretical predictions coming, again, from our best theory to date, which is Einstein’s theory of 
+general relativity, predicts that when you look at an image of a black hole, you should roughly see two main features. 
+One is a dark patch, which is often called the black hole shadow that’s cast by the black hole because the event horizon absorbs light. 
+Around this dark patch, you should see a very thin ring of light that we call the photon ring. And this ring of light is produced by photons, 
+particles of light, that orbit around the black hole, possibly multiple times on their way from their source, which is some hot matter around 
+the black hole, to the observer, which is our telescope. Only a black hole can bend light so much that it actually orbits around it.

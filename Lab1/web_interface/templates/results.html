@@ -1,0 +1,46 @@
+<div class="search-info">
+    <p>Запрос: "<strong>{{ query }}</strong>"</p>
+    <p>Найдено документов: <strong>{{ total_found }}</strong></p>
+</div>
+
+{% if results %}
+    <div class="results-list">
+        {% for result in results %}
+        <div class="result-item">
+            <div class="result-header">
+                <h3 class="result-title">
+                    Название документа: {{ result.title }}
+                    <span class="file-type">({{ result.file_type }})</span>
+                </h3>
+                <div class="relevance-badge">
+                    Релевантность: {{ result.relevance }}%
+                </div>
+            </div>
+
+            <div class="result-meta">
+                <span class="doc-id">ID: {{ result.doc_id }}</span>
+                <span class="date">Создан: {{ result.date_created }}</span>
+                <span class="file-path">Путь: {{ result.file_path }}</span>
+            </div>
+
+            <div class="result-snippet">
+                {{ result.snippet|safe }}
+            </div>
+
+            {% if result.query_terms_in_doc %}
+            <div class="query-terms">
+                <strong>Найденные термины:</strong>
+                {% for term in result.query_terms_in_doc %}
+                <span class="term-tag">{{ term }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="no-results">
+        <p>К сожалению по вашему запросу ничего не найдено.</p>
+        <p>Попробуйте изменить запрос или использовать другие ключевые слова.</p>
+    </div>
+{% endif %}
